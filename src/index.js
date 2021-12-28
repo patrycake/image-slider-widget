@@ -20,21 +20,65 @@ let imgSrcArr = [
     avocadoImg
 ]
 
-let index = 0;
-let imgCont = document.getElementById("main-image");
-const mainIcon = new Image();
-mainIcon.src = imgSrcArr[index];
-imgCont.appendChild(mainIcon)
+const imgSliderController = (() => {
+    let index = 0;
+    const mainIcon = new Image();
+    let dotArr = []
 
-document.getElementById("next-image").addEventListener("click", function () {
-    index++
-    mainIcon.src = imgSrcArr[index];
-    if(index >= imgSrcArr.length) index = 0
-})
+    function imgSetUp() {
+        let imgContainer = document.getElementById("main-image");
+        mainIcon.src = imgSrcArr[index];
+        imgContainer.appendChild(mainIcon)
+    }
+
+    function dotSetUp() {
+        imgSrcArr.forEach((img, index) => {
+            console.log(index)
+            let dotDiv = document.createElement("div")
+            let dot = document.createElement("i")
+            dot.classList.add("fas")
+            dot.classList.add("fa-circle")
+            dotDiv.appendChild(dot)
+            dotDiv.addEventListener("click", function () {
+                imgIndexUpdate(index)
+            })
+            dotArr.push(dotDiv)
+            document.getElementById("dots").appendChild(dotDiv)
+        })
+    }
+
+    function imgIndexUpdate(newIndex) {
+        dotArr[index].classList.remove("active-dot")
+        if (newIndex >= imgSrcArr.length) index = 0
+        else if (newIndex < 0) index = imgSrcArr.length - 1
+        else index = newIndex;
+        mainIcon.src = imgSrcArr[index];
+        dotArr[index].classList.add("active-dot")
+    }
+
+    function getIndex() {
+        return index;
+    }
+    return {
+        imgSetUp,
+        dotSetUp,
+        getIndex,
+        imgIndexUpdate
+    }
+})()
+
+imgSliderController.imgSetUp();
+imgSliderController.dotSetUp()
+
+function setNextImg() {
+    let nextIndex = imgSliderController.getIndex()
+    imgSliderController.imgIndexUpdate(++nextIndex)
+}
+
+setInterval(setNextImg, 3000)
+
+document.getElementById("next-image").addEventListener("click", setNextImg)
 document.getElementById("previous-image").addEventListener("click", function () {
-    index--
-    if(index < 0) index = imgSrcArr.length - 1
-    console.log(index)
-    mainIcon.src = imgSrcArr[index];
-    
+    let nextIndex = imgSliderController.getIndex()
+    imgSliderController.imgIndexUpdate(--nextIndex)
 })
